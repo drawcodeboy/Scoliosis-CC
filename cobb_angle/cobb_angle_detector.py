@@ -35,6 +35,11 @@ class CentroidsDetector():
         
         centroids = [top_pt, *centroids, bottom_pt]
         
+        # Equal pixel segment sequence
+        # (1) Update Centroids
+        # (2) Spline Interpolation
+        # (3) Equal pixel segment slice -> get X Coordinate according to Y
+        
         return centroids
         
     def init_centroids(self, binary_mask):
