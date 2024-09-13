@@ -1,0 +1,13 @@
+# vscode
+.vscode
+
+# pycache
+__pycache__
+
+# venv
+.venv
+
+# data
+!data/
+data/*
+data/temp.txt
