@@ -1,9 +1,9 @@
 import cv2
-import argparse
 import numpy as np
+from scipy.interpolate import CubicSpline
+
+import argparse
 import sys, os
-import math
-from typing import Optional
 import time
 
 sys.path.append(os.getcwd())
@@ -11,12 +11,15 @@ sys.path.append(os.getcwd())
 def get_args_parser():
     parser = argparse.ArgumentParser(add_help=False)
     
+    parser.add_argument("--data-dir", default="data/AIS.v1i.yolov8.orig")
+    
     return parser
     
 class CentroidsDetector():
     def __init__(self, 
-                 n_segments:int = 20):
+                 n_segments:int = 29):
         '''
+            Purpose: Generate Sequence Data
             Args:
                 - n_segments: N개의 구간 -> ** Centroids는 N+1개 **
         '''
@@ -26,21 +29,23 @@ class CentroidsDetector():
     def __call__(self, binary_mask):
         '''
             Return:
-                - centroids: List[float]
+                - Sequence: List[float]
         '''
+        
         _, binary_mask = cv2.threshold(binary_mask, 128, 255, cv2.THRESH_BINARY)
         
+        # (1) Centroid Initialization
         centroids = self.init_centroids(binary_mask)
+        
         top_pt, bottom_pt = self.find_extremes(binary_mask)
         
         centroids = [top_pt, *centroids, bottom_pt]
         
-        # Equal pixel segment sequence
-        # (1) Update Centroids
-        # (2) Spline Interpolation
-        # (3) Equal pixel segment slice -> get X Coordinate according to Y
+        # (2) Spline Interpolation -> Slice equal steps -> Sequence
         
-        return centroids
+        sequence = self.get_sequence(centroids, step=4)
+        
+        return sequence
         
     def init_centroids(self, binary_mask):
         # Y축 min, max 찾기
@@ -123,23 +128,80 @@ class CentroidsDetector():
         bottom_pt = [int((bl_pt[0]+br_pt[0])/2), int((bl_pt[1]+br_pt[1])/2)]
         
         return top_pt, bottom_pt
+    
+    def get_sequence(self, centroids, step):
+        centroids_np = np.array(centroids)
+        
+        x = centroids_np[:, 1] # Actually, y in openCV
+        y = centroids_np[:, 0] # Actually, x in openCV
+        
+        cs = CubicSpline(x, y)
+        
+        top_pt_x, bottom_pt_x = centroids[0][1], centroids[-1][1] # Actually, y in openCV
+        seq_x = np.array([x for x in range(top_pt_x, bottom_pt_x, step)]) #
+        seq_y = cs(seq_x)
+        
+        sequence = np.concatenate((seq_y.reshape(-1, 1), seq_x.reshape(-1, 1)), axis=1)
+        
+        return sequence
+
+def get_mask(path, width:int=640, height:int=640):
+    '''
+        transform label.txt -> binary mask (3 channels)
+    '''
+    with open(path) as f:
+        pts = f.read().split()
+    
+    polygon = []
+    
+    for x, y in zip(pts[1::2], pts[2::2]):
+        x, y = float(x) * width, float(y) * height
+        polygon.append([int(x), int(y)])
+    
+    polygon = np.array(polygon)
+    
+    mask = np.zeros((height, width, 3), dtype=np.uint8)
+    mask_value = [255, 255, 255]
+    cv2.fillPoly(mask, [polygon], mask_value)
+    
+    return mask
 
 def main(args):
-    binary_mask = cv2.imread("./cobb_angle/mask_0002.jpg")
     
-    detector = CentroidsDetector(n_segments=19)
-    centroids = detector(binary_mask)
-    print(centroids)
-    print(len(centroids))
+    start_time = time.time()
     
-    for x, y in centroids:
-        cv2.line(binary_mask, (x, y), (x, y), color=(0, 0, 255), thickness=3)
+    # Sequence Extractor Initialization
+    extractor = CentroidsDetector(n_segments=29) # points: n_segments + 1
     
-    cv2.imshow('test', binary_mask)
-    
-    cv2.waitKeyEx(0)
-    cv2.destroyAllWindows()
-    
+    # Check sequences directory exists
+    dirs = ['train', 'test', 'valid']
+    for dir in dirs:
+        os.makedirs(rf"{args.data_dir}/{dir}/sequences", exist_ok=True)
+        
+    for dir in dirs:
+        labels_path = rf"{args.data_dir}/{dir}/labels"
+        sequences_path = rf"{args.data_dir}/{dir}/sequences"
+        
+        for filename in os.listdir(labels_path):
+            
+            label_path = rf"{labels_path}/{filename}"
+            sequence_path = rf"{sequences_path}/{filename}"
+            
+            binary_mask = get_mask(path=label_path)
+            sequence = extractor(binary_mask)
+            
+            with open(sequence_path, 'w+') as f:
+                for idx, coordinate in enumerate(sequence):
+                    x, y = coordinate[0], coordinate[1]
+                    if idx < len(sequence) - 1:
+                        f.write(rf"{x} {y}" + '\n')
+                    else:
+                        f.write(rf"{x} {y}")
+            
+            print(rf"{sequence_path} | seq length: {len(sequence)}")
+            
+    elapsed_time = int(time.time() - start_time)
+    print(rf"Time: {elapsed_time//60}m {elapsed_time%60}s")
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Centroid Detector test', parents=[get_args_parser()])
