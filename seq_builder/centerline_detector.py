@@ -12,6 +12,7 @@ def get_args_parser():
     parser = argparse.ArgumentParser(add_help=False)
     
     parser.add_argument("--data-dir", default="data/AIS.v1i.yolov8.orig")
+    parser.add_argument("--test-sample", action='store_true')
     
     return parser
     
@@ -39,7 +40,11 @@ class CentroidsDetector():
         
         top_pt, bottom_pt = self.find_extremes(binary_mask)
         
-        centroids = [top_pt, *centroids, bottom_pt]
+        # Exception: Cubic Interpolation needs only Increasing sequence
+        if top_pt[1] < centroids[0][1]:
+            centroids = [top_pt, *centroids]
+        if bottom_pt[1] > centroids[-1][1]:
+            centroids = [*centroids, bottom_pt] 
         
         # (2) Spline Interpolation -> Slice equal steps -> Sequence
         
@@ -166,7 +171,16 @@ def get_mask(path, width:int=640, height:int=640):
     
     return mask
 
+def test():
+    path = rf""
+    extractor = CentroidsDetector(n_segments=29)
+    mask = get_mask(path)
+    sequence = extractor(mask)
+
 def main(args):
+    if args.test_sample:
+        test()
+        sys.exit()
     
     start_time = time.time()
     
@@ -175,6 +189,7 @@ def main(args):
     
     # Check sequences directory exists
     dirs = ['train', 'test', 'valid']
+    dirs = ['valid']
     for dir in dirs:
         os.makedirs(rf"{args.data_dir}/{dir}/sequences", exist_ok=True)
         
