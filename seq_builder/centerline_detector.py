@@ -11,7 +11,7 @@ sys.path.append(os.getcwd())
 def get_args_parser():
     parser = argparse.ArgumentParser(add_help=False)
     
-    parser.add_argument("--data-dir", default="data/AIS.v1i.yolov8.orig")
+    parser.add_argument("--data-dir", default="data/AIS.v1i.yolov8")
     parser.add_argument("--test-sample", action='store_true')
     
     return parser
@@ -189,7 +189,7 @@ def main(args):
     
     # Check sequences directory exists
     dirs = ['train', 'test', 'valid']
-    dirs = ['valid']
+    
     for dir in dirs:
         os.makedirs(rf"{args.data_dir}/{dir}/sequences", exist_ok=True)
         
