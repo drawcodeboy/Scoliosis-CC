@@ -6,7 +6,7 @@ import numpy as np
 import cv2
 import os
 
-class ScoliosisDataset(Dataset):
+class ImageDataset(Dataset):
     def __init__(self, data_dir, mode='train', model='U-Net'):
         self.data_dir = data_dir
         self.mode = mode
