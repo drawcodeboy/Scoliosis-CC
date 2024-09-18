@@ -4,3 +4,4 @@ scipy==1.14.1
 torch==2.4.1+cpu
 torchvision==0.19.1+cpu
 matplotlib==3.9.2
+torchsummary==1.5.1
