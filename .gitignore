@@ -11,3 +11,15 @@ __pycache__
 !data/
 data/*
 data/temp.txt
+
+# save
+!saved/
+saved/*
+
+!saved/weights
+saved/weights/*
+!saved/weights/temp.txt
+
+!saved/losses
+saved/losses/*
+!saved/losses/temp.txt
