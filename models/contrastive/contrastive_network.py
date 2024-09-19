@@ -6,7 +6,7 @@ __all__ = ["ContrastiveNetwork"]
 
 class ContrastiveNetwork(nn.Module):
     def __init__(self, encoder, feature_dim, class_num):
-        super(Network, self).__init__()
+        super(ContrastiveNetwork, self).__init__()
         self.encoder = encoder
         self.feature_dim = feature_dim
         self.cluster_num = class_num

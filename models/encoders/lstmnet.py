@@ -19,6 +19,8 @@ class LSTMNet(nn.Module):
         self.gamma = nn.Parameter(torch.tensor([1.]))
         self.bias = nn.Parameter(torch.tensor([0.]))
         
+        self.rep_dim = 2048
+        
     def _make_layer(self, input_size, hidden_size):
         layers = []
         
