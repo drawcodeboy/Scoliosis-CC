@@ -32,7 +32,7 @@ class ImageDataset(Dataset):
         image /= 255.0
         image = torch.tensor(image, dtype=torch.float32).unsqueeze(0) # for channel
         
-        return self.transform(image, self.mode)
+        return self.transform(image, self.mode), self.data_li[idx]
         
     def get_image(self, image_path):
         image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE).astype(np.float32)

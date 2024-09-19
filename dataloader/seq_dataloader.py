@@ -5,10 +5,19 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 
+from .transform import SequenceTransforms
+
 class SequenceDataset(Dataset):
-    def __init__(self, data_dir):
+    def __init__(self, 
+                 data_dir:str,
+                 mode:str='train',
+                 transform=SequenceTransforms):
         self.data_dir = data_dir
         self.data_li = [] # {image_path}
+        
+        self.mode = mode
+        self.transform = transform()
+        
         self._check()
     
     def __len__(self):
@@ -17,11 +26,11 @@ class SequenceDataset(Dataset):
     def __getitem__(self, idx):
         seq = self.get_seq(self.data_li[idx])
         
-        seq = torch.tensor(seq, dtype=torch.float32)
+        seq = torch.tensor(seq, dtype=torch.float32).view(len(seq), 1)
         
         seq = (seq-torch.mean(seq))/(torch.std(seq))
         
-        return seq
+        return self.transform(seq, self.mode), self.data_li[idx]
     
     def get_seq(self, seq_path):
         sequence = []

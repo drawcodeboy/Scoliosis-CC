@@ -34,7 +34,7 @@ class MaskDataset(Dataset):
         mask /= 255.0
         mask = torch.tensor(mask, dtype=torch.float32).unsqueeze(0) # for channel
         
-        return self.transform(mask, self.mode)
+        return self.transform(mask, self.mode), self.data_li[idx]
     
     def get_mask(self, label_path):
         with open(label_path) as f:

@@ -3,6 +3,9 @@ import torchvision
 import cv2
 import numpy as np
 
+import random
+import copy
+
 __all__ = ["ImageTransforms", "MaskTransforms", "SequenceTransforms"]
 
 class GaussianBlur:
@@ -33,7 +36,21 @@ class GaussianNoise:
         
         noise = 1 - noise
         return sample * noise
-
+    
+class MaskedSignal:
+    def __init__(self, masked_range=10):
+        self.masked_range = masked_range
+    
+    def __call__(self, sample):
+        seq_len, dim = sample.size()
+        start_step = self.masked_range-1
+        end_step = seq_len-1
+        
+        random_step = random.randint(start_step, end_step)
+        
+        sample[(random_step-self.masked_range):random_step,:] = 0.
+        
+        return sample
 
 class ImageTransforms:
     def __init__(self, size, s=1.0, blur=False):
@@ -81,5 +98,25 @@ class MaskTransforms:
     def __call__(self, x, mode):
         if mode == 'train':
             return self.train_transform(x), self.train_transform(x)
+        elif mode == 'test':
+            return self.test_transform(x)
+        
+class SequenceTransforms:
+    def __init__(self):
+        self.train_transform = [
+            MaskedSignal(),
+        ]
+        
+        self.test_transform = [
+            
+        ]
+        
+        self.train_transform = torchvision.transforms.Compose(self.train_transform)
+        self.test_transform = torchvision.transforms.Compose(self.test_transform)
+        
+    def __call__(self, x, mode):
+        if mode == 'train':
+            x_cp = copy.deepcopy(x)
+            return self.train_transform(x), self.train_transform(x_cp)
         elif mode == 'test':
             return self.test_transform(x)
