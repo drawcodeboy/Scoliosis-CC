@@ -6,13 +6,22 @@ import numpy as np
 import cv2
 import os
 
+from .transform import MaskTransforms
+
 class MaskDataset(Dataset):
     def __init__(self, data_dir,
                  width:int=640,
-                 height:int=640):
+                 height:int=640,
+                 transform=MaskTransforms,
+                 mode:str='train'):
+        
         self.data_dir = data_dir
         self.data_li = [] # {image_path}
         self.width, self.height = width, height
+        
+        self.transform = transform(size=244) # Resize
+        self.mode = mode
+        
         self._check()
     
     def __len__(self):
@@ -25,7 +34,7 @@ class MaskDataset(Dataset):
         mask /= 255.0
         mask = torch.tensor(mask, dtype=torch.float32).unsqueeze(0) # for channel
         
-        return mask
+        return self.transform(mask, self.mode)
     
     def get_mask(self, label_path):
         with open(label_path) as f:
