@@ -9,13 +9,13 @@ def image_dataset_test():
     train_ds = load_dataset()
     test_ds = load_dataset(mode='test')
 
-    print(train_ds[0][0].shape, train_ds[0][1].shape)
+    print(train_ds[0][0][0].shape, train_ds[0][0][1].shape)
     print(train_ds)
 
-    img1 = train_ds[0][0].permute(1, 2, 0).numpy()
-    img2 = train_ds[0][1].permute(1, 2, 0).numpy()
+    img1 = train_ds[0][0][0].permute(1, 2, 0).numpy()
+    img2 = train_ds[0][0][1].permute(1, 2, 0).numpy()
     
-    img3 = test_ds[0].permute(1, 2, 0).numpy()
+    img3 = test_ds[0][0].permute(1, 2, 0).numpy()
     
     print(img1, img2, img3)
 
@@ -91,6 +91,6 @@ def seq_dataset_test():
     '''
     
 if __name__ == '__main__':
-    # image_dataset_test()
+    image_dataset_test()
     # mask_dataset_test()
-    seq_dataset_test()
+    # seq_dataset_test()

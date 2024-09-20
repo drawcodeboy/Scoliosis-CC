@@ -2,7 +2,7 @@ from models import load_encoder, ContrastiveNetwork, InstanceLoss, ClusterLoss
 from dataloader import load_dataset
 from utils.engine import train_one_epoch
 from utils.save_ckpt import *
-from utils.dataset_fn import collate_fn
+from utils.dataset_fn import collate_fn_train
 
 import torch
 from torch.utils.data import DataLoader
@@ -92,7 +92,7 @@ def main(args):
     dl = DataLoader(ds, 
                     shuffle=True, 
                     batch_size=args.batch_size,
-                    collate_fn=collate_fn if args.dataset == 'seq' else None)
+                    collate_fn=collate_fn_train if args.dataset == 'seq' else None)
     
     # Optimizer
     optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)

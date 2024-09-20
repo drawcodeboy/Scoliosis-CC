@@ -3,6 +3,7 @@ from dataloader import load_dataset
 from utils.engine import evaluate
 from utils.tsne_generator import tsne_generator
 from utils.save_cluster import save_cluster
+from utils.dataset_fn import collate_fn_test
 
 import torch
 from torch.utils.data import DataLoader
@@ -85,7 +86,7 @@ def main(args):
     dl = DataLoader(ds, 
                     shuffle=True, 
                     batch_size=args.batch_size,
-                    collate_fn=collate_fn if args.dataset == 'seq' else None)
+                    collate_fn=collate_fn_test if args.dataset == 'seq' else None)
     
     # Evaluate
     

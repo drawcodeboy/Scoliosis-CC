@@ -1,6 +1,6 @@
 import torch
 
-def collate_fn(batch):
+def collate_fn_train(batch):
     longest_size = max([sample[0][0].shape[0] for sample in batch])
     
     paths = [sample[1] for sample in batch]
@@ -21,3 +21,22 @@ def collate_fn(batch):
     x_j_batch = torch.stack(x_j_batch, dim=0)
     
     return (x_i_batch, x_j_batch), paths
+
+def collate_fn_test(batch):
+    longest_size = max([sample[0].shape[0] for sample in batch])
+    
+    paths = [sample[1] for sample in batch]
+        
+    x_batch = []
+        
+    for sample in batch: 
+        if longest_size != sample[0].shape[0]:
+            zero_temp = torch.zeros(longest_size - sample[0].shape[0], 1)
+        
+            x_batch.append(torch.cat([zero_temp, sample[0]], dim=0))
+        else:
+            x_batch.append(sample[0])
+    
+    x_batch = torch.stack(x_batch, dim=0)
+    
+    return x_batch, paths
