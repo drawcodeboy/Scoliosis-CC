@@ -1,4 +1,7 @@
 import torch
+import numpy as np
+
+import sys
 
 def train_one_epoch(model, dataloader, optimizer, loss_fns, scheduler, device):
     model.train()
@@ -28,5 +31,28 @@ def train_one_epoch(model, dataloader, optimizer, loss_fns, scheduler, device):
     return sum(total_loss)/len(total_loss) # One Epoch Mean Loss
 
 @torch.no_grad()
-def evaluate():
-    pass
+def evaluate(model, dataloader, device):
+    model.eval()
+    
+    cluster_assignments = []
+    instance_vectors = []
+    data_paths = []
+    
+    for batch_idx, (x, data_path) in enumerate(dataloader, start=1):
+        x = x.to(device)
+        
+        c, z = model.forward_evaluate(x)
+        
+        cluster_assignments.extend(c.detach().cpu().tolist())
+        instance_vectors.extend(z.detach().cpu().tolist())
+        data_paths.extend(data_path)
+        
+        if batch_idx == 10: break
+        
+        print(f"\rEvaluate: {100*batch_idx/len(dataloader):.2f}%", end="")
+    print()
+    
+    cluster_assignments = np.array(cluster_assignments)
+    instance_vectors = np.array(instance_vectors)
+    
+    return cluster_assignments, instance_vectors, data_paths
