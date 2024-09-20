@@ -36,8 +36,12 @@ class ContrastiveNetwork(nn.Module):
 
         return z_i, z_j, c_i, c_j
 
-    def forward_cluster(self, x):
+    def forward_evaluate(self, x):
         h = self.encoder(x)
+        
         c = self.cluster_projector(h)
         c = torch.argmax(c, dim=1)
-        return c
+        
+        z = normalize(self.instance_projector(h), dim=1)
+        
+        return c, z

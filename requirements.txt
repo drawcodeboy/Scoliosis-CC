@@ -1,7 +1,9 @@
-# Local
+# Local (CPU)
 opencv-python==4.10.0.8
 scipy==1.14.1
 torch==2.4.1+cpu
 torchvision==0.19.1+cpu
 matplotlib==3.9.2
 torchsummary==1.5.1
+scikit-learn==1.5.2
+seaborn==0.13.2

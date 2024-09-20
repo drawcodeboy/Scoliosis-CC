@@ -2,6 +2,7 @@ from models import load_encoder, ContrastiveNetwork, InstanceLoss, ClusterLoss
 from dataloader import load_dataset
 from utils.engine import train_one_epoch
 from utils.save_ckpt import *
+from utils.dataset_fn import collate_fn
 
 import torch
 from torch.utils.data import DataLoader
@@ -60,7 +61,7 @@ def print_setup(device, args):
     print(f"  |-[lr]: {args.lr:06f}")
     print(f"  |-[weight decay]: {args.weight_decay}")
     print(f"  |-[batch size]: {args.batch_size}")
-    print(f"\n [SAVE PATHS]")
+    print(f"\n [SAVE]")
     print(f"  |-[SAVE WEIGHTS DIR]: {args.save_weights_dir}")
     print(f"  |-[SAVE LOSSES DIR]: {args.save_losses_dir}")
     print("\n=======================================================")
@@ -71,28 +72,6 @@ def print_setup(device, args):
     if proceed == 'n':
         sys.exit()
 
-def collate_fn(batch):
-    longest_size = max([sample[0][0].shape[0] for sample in batch])
-    
-    paths = [sample[1] for sample in batch]
-        
-    x_i_batch, x_j_batch = [], []
-        
-    for sample in batch: 
-        if longest_size != sample[0][0].shape[0]:
-            zero_temp = torch.zeros(longest_size - sample[0][0].shape[0], 1)
-        
-            x_i_batch.append(torch.cat([zero_temp, sample[0][0]], dim=0))
-            x_j_batch.append(torch.cat([zero_temp, sample[0][1]], dim=0))
-        else:
-            x_i_batch.append(sample[0][0])
-            x_j_batch.append(sample[0][1])
-    
-    x_i_batch = torch.stack(x_i_batch, dim=0)
-    x_j_batch = torch.stack(x_j_batch, dim=0)
-    
-    return (x_i_batch, x_j_batch), paths
-
 def main(args):
     device = 'cpu'
     if args.use_cuda and torch.cuda.is_available():
@@ -100,7 +79,7 @@ def main(args):
         
     print_setup(device, args)
     
-    # Load Models
+    # Load Model
     
     encoder = load_encoder(args.encoder)
     model = ContrastiveNetwork(encoder, 

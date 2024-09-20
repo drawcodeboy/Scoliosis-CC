@@ -23,3 +23,6 @@ saved/weights/*
 !saved/losses
 saved/losses/*
 !saved/losses/temp.txt
+
+#result
+result/
