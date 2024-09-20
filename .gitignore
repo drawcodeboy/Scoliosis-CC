@@ -10,7 +10,7 @@ __pycache__
 # data
 !data/
 data/*
-data/temp.txt
+!data/temp.txt
 
 # save
 !saved/
