@@ -7,6 +7,8 @@ def train_one_epoch(model, dataloader, optimizer, loss_fns, scheduler, device):
     model.train()
     
     total_loss = []
+    total_instance_loss = []
+    total_cluster_loss = []
     
     for batch_idx, ((x_i, x_j), _) in enumerate(dataloader, start=1):
         x_i = x_i.to(device)
@@ -20,12 +22,15 @@ def train_one_epoch(model, dataloader, optimizer, loss_fns, scheduler, device):
         loss = loss_instance + loss_cluster
         
         total_loss.append(loss.item())
+        total_instance_loss.append(loss_instance.item())
+        total_cluster_loss.append(loss_cluster.item())
         
         loss.backward()
         
         optimizer.step()
+        scheduler.step(loss)
         
-        print(f"\rTraining: {100*batch_idx/len(dataloader):.2f}%, Loss: {sum(total_loss)/len(total_loss):.6f}, LR: {scheduler.get_last_lr()[0]:.8f}", end="")
+        print(f"\rTraining: {100*batch_idx/len(dataloader):.2f}%, Instance Loss: {sum(total_instance_loss)/len(total_instance_loss):.6f}, Cluster Loss: {sum(total_cluster_loss)/len(total_cluster_loss):.6f}, Loss: {sum(total_loss)/len(total_loss):.6f}, LR: {scheduler.get_last_lr()[0]:.8f}", end="")
     print()
 
     return sum(total_loss)/len(total_loss) # One Epoch Mean Loss

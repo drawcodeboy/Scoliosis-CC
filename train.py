@@ -34,7 +34,7 @@ def get_args_parser():
     
     # Hyperparameters
     parser.add_argument("--batch-size", type=int, default=32)
-    parser.add_argument("--lr", type=float, default=1e-4*3.)
+    parser.add_argument("--lr", type=float, default=1e-4) # Different with paper
     parser.add_argument("--epochs", type=int, default=100)
     parser.add_argument("--weight-decay", type=float, default=0)
     
