@@ -23,7 +23,7 @@ class GaussianBlur:
         return sample
 
 class GaussianNoise:
-    def __init__(self, keep_prob=0.8):
+    def __init__(self, keep_prob=0.5):
         self.keep_prob = 1-keep_prob
     
     def __call__(self, sample):
@@ -86,6 +86,7 @@ class MaskTransforms:
         self.train_transform = [
             torchvision.transforms.Resize(size=(size, size)),
             GaussianNoise(),
+            torchvision.transforms.RandomAffine(degrees=(-20, 20))
         ]
         
         self.test_transform = [
