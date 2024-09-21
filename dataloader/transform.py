@@ -23,7 +23,7 @@ class GaussianBlur:
         return sample
 
 class GaussianNoise:
-    def __init__(self, keep_prob=0.5):
+    def __init__(self, keep_prob=0.6):
         self.keep_prob = 1-keep_prob
     
     def __call__(self, sample):
