@@ -52,8 +52,6 @@ def evaluate(model, dataloader, device):
         instance_vectors.extend(z.detach().cpu().tolist())
         data_paths.extend(data_path)
         
-        if batch_idx == 10: break
-        
         print(f"\rEvaluate: {100*batch_idx/len(dataloader):.2f}%", end="")
     print()
     
