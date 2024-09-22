@@ -60,9 +60,9 @@ class ImageTransforms:
             # torchvision.transforms.RandomResizedCrop(size=size),
             # torchvision.transforms.RandomHorizontalFlip(),
             GaussianNoise(),
-            torchvision.transforms.RandomApply([torchvision.transforms.ColorJitter(0.8 * s, 0.8 * s, 0.8 * s, 0.2 * s)],
-                                               p=0.8),
-            torchvision.transforms.RandomGrayscale(p=0.2),
+            # torchvision.transforms.RandomApply([torchvision.transforms.ColorJitter(0.8 * s, 0.8 * s, 0.8 * s, 0.2 * s)],
+            #                                    p=0.8),
+            # torchvision.transforms.RandomGrayscale(p=0.2),
         ]
         if blur:
             self.train_transform.append(GaussianBlur(kernel_size=23))
