@@ -57,8 +57,9 @@ class ImageTransforms:
         # Train Transform
         self.train_transform = [
             torchvision.transforms.Resize(size=(size, size)),
-            torchvision.transforms.RandomResizedCrop(size=size),
-            torchvision.transforms.RandomHorizontalFlip(),
+            # torchvision.transforms.RandomResizedCrop(size=size),
+            # torchvision.transforms.RandomHorizontalFlip(),
+            GaussianNoise(),
             torchvision.transforms.RandomApply([torchvision.transforms.ColorJitter(0.8 * s, 0.8 * s, 0.8 * s, 0.2 * s)],
                                                p=0.8),
             torchvision.transforms.RandomGrayscale(p=0.2),
