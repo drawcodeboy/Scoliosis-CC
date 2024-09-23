@@ -1,4 +1,4 @@
-from sklearn.manifold import TSNE
+from sklearn.manifold import TSNE, LocallyLinearEmbedding, Isomap, MDS, SpectralEmbedding
 from sklearn.metrics import silhouette_score
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -9,6 +9,10 @@ import umap
 def tsne_generator(data, target, dataset_name, n_clusters):
     
     model = TSNE(n_components=2, init='random')
+    # model = SpectralEmbedding(n_components=2)
+    # model = MDS(n_components=2)
+    # model = Isomap(n_components=2)
+    # model = LocallyLinearEmbedding(n_components=2, n_neighbors=10, random_state=42)
     # model = umap.UMAP(n_neighbors=15, min_dist=0.1, n_components=2, random_state=42)
     labels = ["01st", "02nd", "03rd", "04th", "05th", "06th", "07th", "08th", "09th", "10th"]
     
@@ -53,5 +57,5 @@ def tsne_generator(data, target, dataset_name, n_clusters):
     
     save_path = rf"result/_t-SNE_figures/{dataset_name}_{n_clusters:02d}_clusters_tSNE.jpg"
     
-    plt.show()
-    # plt.savefig(save_path, dpi=500)
+    # plt.show()
+    plt.savefig(save_path, dpi=500)

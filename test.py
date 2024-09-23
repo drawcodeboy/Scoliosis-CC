@@ -84,7 +84,7 @@ def main(args):
     
     ds = load_dataset(dataset=args.dataset, mode='test')
     dl = DataLoader(ds, 
-                    shuffle=True, 
+                    shuffle=False, 
                     batch_size=args.batch_size,
                     collate_fn=collate_fn_test if args.dataset == 'seq' else None)
     
