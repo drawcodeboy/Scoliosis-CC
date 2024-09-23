@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch
 from torchvision.models.resnet import Bottleneck, BasicBlock, conv1x1
 
-from .layer_norm import LayerNorm2d
+from .layer_norm import LayerNorm1d
 
 class ResNet(nn.Module):
 
