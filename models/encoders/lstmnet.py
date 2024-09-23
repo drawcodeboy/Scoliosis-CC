@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from typing import Tuple
 
-from .layer_norm import LayerNorm2d
+from .layer_norm import LayerNorm1d
 
 class LSTMNet(nn.Module):
     def __init__(self, input_size:int=1):
@@ -25,7 +25,7 @@ class LSTMNet(nn.Module):
         layers = []
         
         layers.append(nn.LSTM(input_size, hidden_size, batch_first=True))
-        layers.append(LayerNorm2d())
+        layers.append(LayerNorm1d())
         layers.append(nn.ReLU())
         
         return nn.ModuleList(layers)

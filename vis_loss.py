@@ -2,27 +2,34 @@ import matplotlib.pyplot as plt
 import numpy as np
 import argparse
 
-def loss_plot(data:str='seq',
-              start_cluster:int=4):
+def loss_plot(data:str='image'):
     
-    seq_losses = []
+    losses = []
 
-    for i in range(start_cluster, 10 + 1, 2):
-        seq_losses.append((i, np.load(rf"saved\losses\{data}_data_{i:02d}_clusters_loss.npy")))
+    for i in [3, 4, 5, 6, 7, 8, 9, 10]:
+        losses.append((i, np.load(rf"saved\losses\{data}_data_{i:02d}_clusters_loss.npy")))
 
-    x = np.arange(0, len(seq_losses[0][1]), 1)
+    x = np.arange(0, len(losses[0][1]), 1)
 
-    for clusters, seq_loss in seq_losses:
-        plt.plot(x, seq_loss, label=f"{clusters:02d} clusters")
+    for clusters, loss in losses:
+        plt.plot(x, loss, label=f"{clusters:02d} clusters")
+        
+    data_title = {
+        'seq': 'Sequence',
+        'mask': 'Mask',
+        'image': 'Image'
+    }
+    
+    plt.title(f"{data_title[data]} Clustering Loss")
     plt.legend()
-    plt.show()
+    # plt.show()
+    plt.savefig(f'result/_losses/{data}_expr_losses.jpg', dpi=500)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     
     parser.add_argument("--data", type=str, default='seq')
-    parser.add_argument("--start-cluster", type=int, default=4)
     
     args = parser.parse_args()
     
-    loss_plot(args.data, args.start_cluster)
+    loss_plot(args.data)

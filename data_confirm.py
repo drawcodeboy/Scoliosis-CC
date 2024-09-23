@@ -91,6 +91,6 @@ def seq_dataset_test():
     '''
     
 if __name__ == '__main__':
-    # image_dataset_test()
-    mask_dataset_test()
+    image_dataset_test()
+    # mask_dataset_test()
     # seq_dataset_test()
