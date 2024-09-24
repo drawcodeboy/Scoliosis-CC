@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from scipy.interpolate import CubicSpline
+import matplotlib.pyplot as plt
 
 import argparse
 import sys, os
@@ -13,12 +14,14 @@ def get_args_parser():
     
     parser.add_argument("--data-dir", default="data/AIS.v1i.yolov8")
     parser.add_argument("--test-sample", action='store_true')
+    parser.add_argument("--visual", type=int, default=0)
     
     return parser
     
 class CentroidsDetector():
     def __init__(self, 
-                 n_segments:int = 29):
+                 n_segments:int = 29,
+                 visual:int = 0):
         '''
             Purpose: Generate Sequence Data
             Args:
@@ -26,6 +29,7 @@ class CentroidsDetector():
         '''
         
         self.n_segments = n_segments
+        self.visual = visual
         
     def __call__(self, binary_mask):
         '''
@@ -46,9 +50,29 @@ class CentroidsDetector():
         if bottom_pt[1] > centroids[-1][1]:
             centroids = [*centroids, bottom_pt] 
         
+        if self.visual == 1:
+            for (x, y) in centroids:
+                cv2.line(binary_mask, (x, y), (x, y), color=(0, 0, 255), thickness=5)
+            binary_mask = binary_mask[:, 160:-160, :]
+            cv2.imshow('process1', binary_mask)
+            cv2.waitKeyEx()
+            cv2.destroyAllWindows()
+            
+            cv2.imwrite('./seq_process1.jpg', binary_mask)
+        
         # (2) Spline Interpolation -> Slice equal steps -> Sequence
         
         sequence = self.get_sequence(centroids, step=4)
+        
+        if self.visual == 2 or self.visual == 3:
+            for (x, y) in sequence:
+                cv2.line(binary_mask, (int(x), int(y)), (int(x), int(y)), color=(0, 0, 255), thickness=3)
+            binary_mask = binary_mask[:, 160:-160, :]
+            cv2.imshow(f'process{self.visual}', binary_mask)
+            cv2.waitKeyEx()
+            cv2.destroyAllWindows()
+            
+            cv2.imwrite(f'./seq_process{self.visual}.jpg', binary_mask)
         
         return sequence
         
@@ -142,6 +166,9 @@ class CentroidsDetector():
         
         cs = CubicSpline(x, y)
         
+        if self.visual == 2:
+            step = 1
+        
         top_pt_x, bottom_pt_x = centroids[0][1], centroids[-1][1] # Actually, y in openCV
         seq_x = np.array([x for x in range(top_pt_x, bottom_pt_x, step)]) #
         seq_y = cs(seq_x)
@@ -171,15 +198,24 @@ def get_mask(path, width:int=640, height:int=640):
     
     return mask
 
-def test():
-    path = rf""
-    extractor = CentroidsDetector(n_segments=29)
+def test(visual):
+    path = rf"data/AIS.v1i.yolov8/train/labels/5_bmp.rf.c818e2855e0d999a1f3324dee7241a1a.txt"
+    extractor = CentroidsDetector(n_segments=29, visual=visual)
     mask = get_mask(path)
     sequence = extractor(mask)
+    if visual == 4:
+        seq = sequence[:, 0]
+        seq = (seq-np.mean(seq))/(np.std(seq))
+        seq = np.concatenate((np.zeros(10), seq))
+        x = np.arange(0, len(seq), 1)
+        plt.plot(x, seq)
+        # plt.show()
+        
+        plt.savefig('./seq_process4.jpg', dpi=500)
 
 def main(args):
     if args.test_sample:
-        test()
+        test(args.visual)
         sys.exit()
     
     start_time = time.time()
